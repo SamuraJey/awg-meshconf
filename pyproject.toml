@@ -2,31 +2,103 @@
 name = "awg-meshconf"
 description = "A tool that helps you to generate peer configuration files for WireGuard mesh networks"
 authors = [{ name = "K4YT3X", email = "i@k4yt3x.com" }, { name = "SamuraJ" }]
-dependencies = ["cryptography>=35.0.0", "rich>=12.0.0", "ruff>=0.12.11,<0.13"]
+dependencies = ["cryptography>=35.0.0", "rich>=12.0.0"]
 requires-python = ">=3.12, <4"
 readme = "README.md"
 license = { text = "GPL-3.0-or-later" }
 dynamic = ["version"]
 
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.4.1,<9.0.0",
+    "mypy>=1.17.0,<2.0.0",
+    "ruff>=0.12.11,<0.13"
+]
+
 [project.urls]
-homepage = "https://github.com/k4yt3x/awg-meshconf"
+homepage = "https://github.com/samuraj/awg-meshconf"
 
 [project.scripts]
 awg-meshconf = "awg_meshconf:main"
 
 [tool.ruff]
-line-length = 120
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".git-rewrite",
+    ".hg",
+    ".ipynb_checkpoints",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pyenv",
+    ".pytest_cache",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    ".vscode",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "site-packages",
+    "venv",
+]
+
+line-length = 200
+indent-width = 4
 target-version = "py312"
 
 [tool.ruff.lint]
-select = ["E", "F", "I"]
+# E - pycodestyle F - Pyflakes UP - pyupgrade B - flake8-bugbear SIM - flake8-simplify I - isort
+# N - flake8-annotations A - flake8-annotations T20 - flake8-tidy-imports ERA - flake8-eradicate
+# C4 - flake8-comprehensions TID - flake8-tidy-imports PERF - flake8-perf
+select = [
+    "E",
+    "F",
+    "UP",
+    "B",
+    "SIM",
+    "I",
+    "N",
+    "A",
+    "T20",
+    "ERA",
+    "C4",
+    "TID",
+    "PERF"
+]
+ignore = ["SIM108", "E712", "C416"]
+
+# Allow fix for all enabled rules (when `--fix`) is provided.
 fixable = ["ALL"]
+unfixable = []
+# Allow unused variables when underscore-prefixed.
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[tool.ruff.lint.per-file-ignores]
+# Ignore E501 (line too long) in tests.
+"tests/*" = ["E501"]
+
+[tool.ruff.lint.isort]
+split-on-trailing-comma = false
 
 [tool.ruff.format]
+# Like Black, use double quotes for strings.
 quote-style = "double"
+# Like Black, indent with spaces, rather than tabs.
 indent-style = "space"
+# Like Black, respect magic trailing commas.
 skip-magic-trailing-comma = false
+# Like Black, automatically detect the appropriate line ending.
 line-ending = "auto"
+
 
 [tool.pdm]
 version = { from = "awg_meshconf/__init__.py" }
