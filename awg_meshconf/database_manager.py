@@ -53,7 +53,7 @@ PEER_ATTRIBUTES_REMOTE = [
     "Endpoint",
 ]
 
-PEER_OPTIONAL_ATTRIBUTES_REMOTE = []
+PEER_OPTIONAL_ATTRIBUTES_REMOTE = []  # type: ignore
 
 PEER_ATTRIBUTES_LOCAL = [
     "PersistentKeepalive",
@@ -124,7 +124,7 @@ KEY_TYPE = {
 class DatabaseManager:
     def __init__(self, database_path: pathlib.Path):
         self.database_path = database_path
-        self.database_template = {"peers": {}}
+        self.database_template: dict = {"peers": {}}
         self.wireguard = WireGuard()
         self.logger = logging.getLogger(__name__)
 
@@ -242,7 +242,7 @@ class DatabaseManager:
                 for key in data["peers"][peer]:
                     if isinstance(data["peers"][peer][key], list):
                         data["peers"][peer][key] = ",".join(data["peers"][peer][key])
-                    elif isinstance(data["peers"][peer][key], int) or isinstance(data["peers"][peer][key], bool):
+                    elif isinstance(data["peers"][peer][key], int | bool):
                         data["peers"][peer][key] = str(data["peers"][peer][key])
                 writer.writerow(data["peers"][peer])
 
@@ -250,35 +250,35 @@ class DatabaseManager:
         self,
         Name: str,
         Address: list,
-        Endpoint: str = None,
-        AllowedIPs: list = None,
-        ListenPort: int = None,
-        PersistentKeepalive: int = None,
-        FwMark: str = None,
-        PrivateKey: str = None,
-        DNS: str = None,
-        MTU: int = None,
-        Table: str = None,
-        PreUp: str = None,
-        PostUp: str = None,
-        PreDown: str = None,
-        PostDown: str = None,
-        SaveConfig: bool = None,
+        Endpoint: str | None = None,
+        AllowedIPs: list | None = None,
+        ListenPort: int | None = None,
+        PersistentKeepalive: int | None = None,
+        FwMark: str | None = None,
+        PrivateKey: str | None = None,
+        DNS: str | None = None,
+        MTU: int | None = None,
+        Table: str | None = None,
+        PreUp: str | None = None,
+        PostUp: str | None = None,
+        PreDown: str | None = None,
+        PostDown: str | None = None,
+        SaveConfig: bool | None = None,
         # AmneziaWG parameters
-        Jc: int = None,
-        Jmin: int = None,
-        Jmax: int = None,
-        S1: int = None,
-        S2: int = None,
-        H1: int = None,
-        H2: int = None,
-        H3: int = None,
-        H4: int = None,
-        I1: str = None,
-        I2: str = None,
-        I3: str = None,
-        I4: str = None,
-        I5: str = None,
+        Jc: int | None = None,
+        Jmin: int | None = None,
+        Jmax: int | None = None,
+        S1: int | None = None,
+        S2: int | None = None,
+        H1: int | None = None,
+        H2: int | None = None,
+        H3: int | None = None,
+        H4: int | None = None,
+        I1: str | None = None,
+        I2: str | None = None,
+        I3: str | None = None,
+        I4: str | None = None,
+        I5: str | None = None,
     ):
         database = self.read_database()
 
@@ -319,36 +319,36 @@ class DatabaseManager:
     def updatepeer(
         self,
         Name: str,
-        Address: list = None,
-        Endpoint: str = None,
-        AllowedIPs: list = None,
-        ListenPort: int = None,
-        PersistentKeepalive: int = None,
-        FwMark: str = None,
-        PrivateKey: str = None,
-        DNS: str = None,
-        MTU: int = None,
-        Table: str = None,
-        PreUp: str = None,
-        PostUp: str = None,
-        PreDown: str = None,
-        PostDown: str = None,
-        SaveConfig: bool = None,
+        Address: list | None = None,
+        Endpoint: str | None = None,
+        AllowedIPs: list | None = None,
+        ListenPort: int | None = None,
+        PersistentKeepalive: int | None = None,
+        FwMark: str | None = None,
+        PrivateKey: str | None = None,
+        DNS: str | None = None,
+        MTU: int | None = None,
+        Table: str | None = None,
+        PreUp: str | None = None,
+        PostUp: str | None = None,
+        PreDown: str | None = None,
+        PostDown: str | None = None,
+        SaveConfig: bool | None = None,
         # AmneziaWG parameters
-        Jc: int = None,
-        Jmin: int = None,
-        Jmax: int = None,
-        S1: int = None,
-        S2: int = None,
-        H1: int = None,
-        H2: int = None,
-        H3: int = None,
-        H4: int = None,
-        I1: str = None,
-        I2: str = None,
-        I3: str = None,
-        I4: str = None,
-        I5: str = None,
+        Jc: int | None = None,
+        Jmin: int | None = None,
+        Jmax: int | None = None,
+        S1: int | None = None,
+        S2: int | None = None,
+        H1: int | None = None,
+        H2: int | None = None,
+        H3: int | None = None,
+        H4: int | None = None,
+        I1: str | None = None,
+        I2: str | None = None,
+        I3: str | None = None,
+        I4: str | None = None,
+        I5: str | None = None,
     ):
         database = self.read_database()
 

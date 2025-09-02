@@ -12,7 +12,7 @@ The WireGuard class implements some of wireguard-tools' cryptographic
 """
 
 import base64
-import random
+import os
 import secrets
 
 from cryptography.hazmat.primitives import serialization
@@ -81,7 +81,7 @@ class WireGuard:
         Returns:
             int: number of junk packets (3-10 recommended)
         """
-        return random.randint(3, 10)
+        return WireGuard._generate_random_int(3, 10)
 
     @staticmethod
     def gen_junk_sizes() -> tuple[int, int]:
@@ -90,8 +90,8 @@ class WireGuard:
         Returns:
             tuple: (Jmin, Jmax) where Jmin <= Jmax, both 50-1000 recommended
         """
-        jmin = random.randint(50, 500)
-        jmax = random.randint(jmin, 1000)
+        jmin = WireGuard._generate_random_int(50, 500)
+        jmax = WireGuard._generate_random_int(jmin, 1000)
         return jmin, jmax
 
     @staticmethod
@@ -101,22 +101,22 @@ class WireGuard:
         Returns:
             tuple: (S1, S2) where S1 and S2 are 15-150, and S1+56 != S2
         """
-        s1 = random.randint(15, 150)
-        s2 = random.randint(15, 150)
+        s1 = WireGuard._generate_random_int(15, 150)
+        s2 = WireGuard._generate_random_int(15, 150)
         while s1 + 56 == s2:
-            s2 = random.randint(15, 150)
+            s2 = WireGuard._generate_random_int(15, 150)
         return s1, s2
 
     @staticmethod
-    def gen_custom_types() -> tuple[int, int, int, int]:
+    def gen_custom_types() -> tuple[int, ...]:
         """generate random H1-H4 values for AmneziaWG custom packet types
 
         Returns:
             tuple: (H1, H2, H3, H4) all different random values
         """
-        types = []
+        types: list[int] = []
         while len(types) < 4:
-            t = random.randint(5, 2**31 - 1)
+            t = WireGuard._generate_random_int(5, 2**31 - 1)
             if t not in types:
                 types.append(t)
         return tuple(types)
@@ -131,7 +131,7 @@ class WireGuard:
         signatures = []
         for _ in range(5):
             # Generate a random hex signature, e.g., mimicking QUIC or other protocols
-            length = random.randint(20, 100)
+            length = WireGuard._generate_random_int(20, 100)
             signature = secrets.token_hex(length)
             signatures.append(signature)
         return signatures
@@ -159,3 +159,16 @@ class WireGuard:
             "H3": h3,
             "H4": h4,
         }
+
+    @staticmethod
+    def _generate_random_int(min_value: int, max_value: int) -> int:
+        """generate a random integer between min and max (inclusive)
+
+        Args:
+            min (int): minimum value
+            max (int): maximum value
+
+        Returns:
+            int: generated random integer
+        """
+        return int.from_bytes(os.urandom(4), "big") % (max_value - min_value + 1) + min_value
