@@ -4,7 +4,7 @@ Name: WireGuard/AmneziaWG Cryptography Class
 Creator: K4YT3X
 Modified by: SamuraJ
 Date Created: October 11, 2019
-Last Modified: September 1, 2025
+Last Modified: September 3, 2025
 
 The WireGuard class implements some of wireguard-tools' cryptographic
     functions such as generating WireGuard private and public keys.

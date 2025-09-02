@@ -6,7 +6,7 @@ Creator: K4YT3X
 Modified by: SamuraJ
 
 Date Created: May 21, 2021
-Last Modified: September 1, 2025
+Last Modified: September 3, 2025
 """
 
 __version__ = "3.0.0"

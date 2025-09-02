@@ -4,7 +4,7 @@ Name: awg-meshconf
 Based on: wg-meshconf by K4YT3X
 Creator: K4YT3X
 Date Created: July 19, 2020
-Last Modified: September 1, 2025
+Last Modified: September 3, 2025
 
 Modified by: SamuraJ
 Modification Date: September 1, 2025
