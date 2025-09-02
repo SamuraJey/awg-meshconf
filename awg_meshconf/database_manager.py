@@ -84,12 +84,7 @@ AMNEZIAWG_ATTRIBUTES = AMNEZIAWG_SHARED_ATTRIBUTES + AMNEZIAWG_PER_PEER_ATTRIBUT
 
 AMNEZIAWG_OPTIONAL_ATTRIBUTES = AMNEZIAWG_ATTRIBUTES
 
-ALL_ATTRIBUTES = (
-    INTERFACE_ATTRIBUTES
-    + PEER_ATTRIBUTES_REMOTE
-    + PEER_ATTRIBUTES_LOCAL
-    + AMNEZIAWG_ATTRIBUTES
-)
+ALL_ATTRIBUTES = INTERFACE_ATTRIBUTES + PEER_ATTRIBUTES_REMOTE + PEER_ATTRIBUTES_LOCAL + AMNEZIAWG_ATTRIBUTES
 
 KEY_TYPE = {
     "Name": str,
@@ -157,9 +152,7 @@ class DatabaseManager:
     def init(self):
         """initialize an empty database file"""
         if not self.database_path.exists():
-            with self.database_path.open(
-                mode="w", encoding="utf-8", newline=""
-            ) as database_file:
+            with self.database_path.open(mode="w", encoding="utf-8", newline="") as database_file:
                 writer = csv.DictWriter(
                     database_file,
                     KEY_TYPE.keys(),
@@ -200,10 +193,7 @@ class DatabaseManager:
                         amneziawg_params[key] = per_peer_params[key]
 
                 for key in AMNEZIAWG_ATTRIBUTES:
-                    if (
-                        database["peers"][peer].get(key) is None
-                        and key in amneziawg_params
-                    ):
+                    if database["peers"][peer].get(key) is None and key in amneziawg_params:
                         database["peers"][peer][key] = amneziawg_params[key]
             self.write_database(database)
 
@@ -220,12 +210,9 @@ class DatabaseManager:
 
         # тут ломаемся
         with self.database_path.open(mode="r", encoding="utf-8-sig") as database_file:
-            peers = csv.DictReader(
-                database_file, quoting=csv.QUOTE_NONE, escapechar="\\"
-            )
+            peers = csv.DictReader(database_file, quoting=csv.QUOTE_NONE, escapechar="\\")
             for peer in peers:
                 for key in peer:
-                    print(f"Key: {key}")
                     if peer[key] == "":
                         peer[key] = None
                     elif KEY_TYPE[key] is list:
@@ -245,12 +232,8 @@ class DatabaseManager:
             data (dict): content of database
         """
 
-        with self.database_path.open(
-            mode="w", encoding="utf-8", newline=""
-        ) as database_file:
-            writer = csv.DictWriter(
-                database_file, KEY_TYPE.keys(), quoting=csv.QUOTE_NONE, escapechar="\\"
-            )
+        with self.database_path.open(mode="w", encoding="utf-8", newline="") as database_file:
+            writer = csv.DictWriter(database_file, KEY_TYPE.keys(), quoting=csv.QUOTE_NONE, escapechar="\\")
             writer.writeheader()
             data = copy.deepcopy(data)
             for peer in data["peers"]:
@@ -321,9 +304,7 @@ class DatabaseManager:
             amneziawg_params = shared_params.copy()
             per_peer_params = self.wireguard.generate_amneziawg_params()
             for key in AMNEZIAWG_PER_PEER_ATTRIBUTES:
-                if (
-                    locals().get(key) is None
-                ):  # Only override if not explicitly provided
+                if locals().get(key) is None:  # Only override if not explicitly provided
                     amneziawg_params[key] = per_peer_params[key]
 
         for key in AMNEZIAWG_ATTRIBUTES:
@@ -422,10 +403,7 @@ class DatabaseManager:
         if verbose is False:
             for peer in peers:
                 for key in ALL_ATTRIBUTES:
-                    if (
-                        database["peers"][peer].get(key) is not None
-                        and key not in field_names
-                    ):
+                    if database["peers"][peer].get(key) is not None and key not in field_names:
                         field_names.append(key)
 
         # include all columns by default
@@ -509,11 +487,7 @@ class DatabaseManager:
 
                     config.write("\n[Peer]\n")
                     config.write("# Name: {}\n".format(p))
-                    config.write(
-                        "PublicKey = {}\n".format(
-                            self.wireguard.pubkey(remote_peer["PrivateKey"])
-                        )
-                    )
+                    config.write("PublicKey = {}\n".format(self.wireguard.pubkey(remote_peer["PrivateKey"])))
 
                     if remote_peer.get("Endpoint") is not None:
                         config.write(
@@ -525,9 +499,7 @@ class DatabaseManager:
 
                     if remote_peer.get("Address") is not None:
                         if remote_peer.get("AllowedIPs") is not None:
-                            allowed_ips = ", ".join(
-                                remote_peer["Address"] + remote_peer["AllowedIPs"]
-                            )
+                            allowed_ips = ", ".join(remote_peer["Address"] + remote_peer["AllowedIPs"])
                         else:
                             allowed_ips = ", ".join(remote_peer["Address"])
                         config.write("AllowedIPs = {}\n".format(allowed_ips))

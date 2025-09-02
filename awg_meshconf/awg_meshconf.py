@@ -26,9 +26,7 @@ from .database_manager import DatabaseManager
 
 def parse_arguments():
     """parse CLI arguments"""
-    parser = argparse.ArgumentParser(
-        prog="awg-meshconf", formatter_class=argparse.ArgumentDefaultsHelpFormatter
-    )
+    parser = argparse.ArgumentParser(prog="awg-meshconf", formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
     parser.add_argument(
         "-d",
@@ -47,18 +45,12 @@ def parse_arguments():
     # add new peer
     addpeer = subparsers.add_parser("addpeer")
     addpeer.add_argument("name", help="Name used to identify this node")
-    addpeer.add_argument(
-        "--address", help="address of the server", action="append", required=True
-    )
+    addpeer.add_argument("--address", help="address of the server", action="append", required=True)
     addpeer.add_argument("--endpoint", help="peer's public endpoint address")
-    addpeer.add_argument(
-        "--allowedips", help="additional allowed IP addresses", action="append"
-    )
+    addpeer.add_argument("--allowedips", help="additional allowed IP addresses", action="append")
     addpeer.add_argument("--privatekey", help="private key of server interface")
     addpeer.add_argument("--listenport", help="port to listen on", default=51820)
-    addpeer.add_argument(
-        "--persistentkeepalive", help="set persistent keepalive interval"
-    )
+    addpeer.add_argument("--persistentkeepalive", help="set persistent keepalive interval")
     addpeer.add_argument("--fwmark", help="fwmark for outgoing packets")
     addpeer.add_argument("--dns", help="server interface DNS servers")
     addpeer.add_argument("--mtu", help="server interface MTU")
@@ -78,12 +70,8 @@ def parse_arguments():
     addpeer.add_argument("--jc", help="number of junk packets (3-10)", type=int)
     addpeer.add_argument("--jmin", help="minimum junk packet size (50-1000)", type=int)
     addpeer.add_argument("--jmax", help="maximum junk packet size (50-1000)", type=int)
-    addpeer.add_argument(
-        "--s1", help="handshake initiation prefix size (15-150)", type=int
-    )
-    addpeer.add_argument(
-        "--s2", help="handshake response prefix size (15-150)", type=int
-    )
+    addpeer.add_argument("--s1", help="handshake initiation prefix size (15-150)", type=int)
+    addpeer.add_argument("--s2", help="handshake response prefix size (15-150)", type=int)
     addpeer.add_argument("--h1", help="custom type for handshake initiation", type=int)
     addpeer.add_argument("--h2", help="custom type for handshake response", type=int)
     addpeer.add_argument("--h3", help="custom type for data packets", type=int)
@@ -99,14 +87,10 @@ def parse_arguments():
     updatepeer.add_argument("name", help="Name used to identify this node")
     updatepeer.add_argument("--address", help="address of the server", action="append")
     updatepeer.add_argument("--endpoint", help="peer's public endpoint address")
-    updatepeer.add_argument(
-        "--allowedips", help="additional allowed IP addresses", action="append"
-    )
+    updatepeer.add_argument("--allowedips", help="additional allowed IP addresses", action="append")
     updatepeer.add_argument("--privatekey", help="private key of server interface")
     updatepeer.add_argument("--listenport", help="port to listen on")
-    updatepeer.add_argument(
-        "--persistentkeepalive", help="set persistent keepalive interval"
-    )
+    updatepeer.add_argument("--persistentkeepalive", help="set persistent keepalive interval")
     updatepeer.add_argument("--fwmark", help="fwmark for outgoing packets")
     updatepeer.add_argument("--dns", help="server interface DNS servers")
     updatepeer.add_argument("--mtu", help="server interface MTU")
@@ -124,21 +108,11 @@ def parse_arguments():
 
     # AmneziaWG obfuscation parameters
     updatepeer.add_argument("--jc", help="number of junk packets (3-10)", type=int)
-    updatepeer.add_argument(
-        "--jmin", help="minimum junk packet size (50-1000)", type=int
-    )
-    updatepeer.add_argument(
-        "--jmax", help="maximum junk packet size (50-1000)", type=int
-    )
-    updatepeer.add_argument(
-        "--s1", help="handshake initiation prefix size (15-150)", type=int
-    )
-    updatepeer.add_argument(
-        "--s2", help="handshake response prefix size (15-150)", type=int
-    )
-    updatepeer.add_argument(
-        "--h1", help="custom type for handshake initiation", type=int
-    )
+    updatepeer.add_argument("--jmin", help="minimum junk packet size (50-1000)", type=int)
+    updatepeer.add_argument("--jmax", help="maximum junk packet size (50-1000)", type=int)
+    updatepeer.add_argument("--s1", help="handshake initiation prefix size (15-150)", type=int)
+    updatepeer.add_argument("--s2", help="handshake response prefix size (15-150)", type=int)
+    updatepeer.add_argument("--h1", help="custom type for handshake initiation", type=int)
     updatepeer.add_argument("--h2", help="custom type for handshake response", type=int)
     updatepeer.add_argument("--h3", help="custom type for data packets", type=int)
     updatepeer.add_argument("--h4", help="custom type for under-load packets", type=int)
