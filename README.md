@@ -1,21 +1,35 @@
-# wg-meshconf
+# awg-meshconf
 
-wg-meshconf is a tool that will help you to generate peer configuration files for WireGuard mesh networks. You can easily and quickly create WireGuard mesh networks using this tool.
+awg-meshconf is a tool that will help you to generate peer configuration files for WireGuard mesh networks. You can easily and quickly create WireGuard mesh networks using this tool.
+
+**Now with AmneziaWG support!** Generate obfuscated configurations to bypass DPI.
+
+## AmneziaWG Features
+
+This version of awg-meshconf includes support for AmneziaWG, a WireGuard fork that implements anti-detection techniques against DPI systems. The following obfuscation parameters are supported:
+
+- **Jc**: Number of junk packets sent before handshake
+- **Jmin/Jmax**: Size range for junk packets
+- **S1/S2**: Random prefixes for handshake packets
+- **H1-H4**: Custom packet type identifiers
+- **I1-I5**: Signature packets for protocol masking
+
+All AmneziaWG parameters (except **I1-I5**) are automatically generated with recommended values if not specified manually.
 
 ## Installation (PyPI)
 
-**This is the recommended way to install wg-meshconf for regular users.** This installation method installs the newest release version of wg-meshconf and all of the required dependencies from PyPI.
+**This is the recommended way to install awg-meshconf for regular users.** This installation method installs the newest release version of awg-meshconf and all of the required dependencies from PyPI.
 
 ```shell
 # installing the program with pip
 # note that Pip for Python3 might be named "pip3" on some systems
-pip install --user -U wg-meshconf
+pip install --user -U awg-meshconf
 
 # running the program
-wg-meshconf showpeers
+awg-meshconf showpeers
 ```
 
-You may now run the program by executing the `wg-meshconf` command.
+You may now run the program by executing the `awg-meshconf` command.
 
 ## Installation (GitHub)
 
@@ -23,21 +37,21 @@ Alternatively, if you would like to install the program directly from source cod
 
 ```shell
 # install the HEAD (latest) commit
-pip install 'wg-meshconf@git+https://github.com/k4yt3x/wg-meshconf.git'
+pip install 'awg-meshconf@git+https://github.com/samuraj/awg-meshconf.git'
 
 # install from a specific tag or commit
-pip install 'wg-meshconf@git+https://github.com/k4yt3x/wg-meshconf.git@2.5.1'
-pip install 'wg-meshconf@git+https://github.com/k4yt3x/wg-meshconf.git@aa16407'
+pip install 'awg-meshconf@git+https://github.com/samuraj/awg-meshconf.git@2.5.1'
+pip install 'awg-meshconf@git+https://github.com/samuraj/awg-meshconf.git@aa16407'
 ```
 
 You can also clone it and install it locally.
 
 ```shell
 # cloning the repository with git
-git clone https://github.com/k4yt3x/wg-meshconf.git
+git clone https://github.com/samuraj/awg-meshconf.git
 
 # enter the directory
-cd wg-meshconf
+cd awg-meshconf
 
 # install the program with Pip
 # Pip and PDM will take care of dependency installation
@@ -46,7 +60,7 @@ pip install -U .
 
 ## Learn by an Example
 
-Usages are dull and boring. Let's see a real-life example of how this tool can be used. This section will demonstrate how to create a simple mesh network with four nodes using wg-meshconf.
+Usages are dull and boring. Let's see a real-life example of how this tool can be used. This section will demonstrate how to create a simple mesh network with four nodes using awg-meshconf.
 
 For this example, suppose you have four servers as shown below. These servers can reach each other via the `Endpoint` address. For instance, server `tokyo1` can ping server `shanghai1` with the address `shanghai1.com`.
 
@@ -58,14 +72,14 @@ You will first need to add the peers' information into the database. There are t
 
 #### Method A: With Excel
 
-wg-meshconf has changed its database format from JSON to CSV and added the `init` command since version 2.4.0. This means that it is now possible for users to directly edit the database file with Excel or other CSV-compatible editors to create/read/update/delete peer information.
+awg-meshconf has changed its database format from JSON to CSV and added the `init` command since version 2.4.0. This means that it is now possible for users to directly edit the database file with Excel or other CSV-compatible editors to create/read/update/delete peer information.
 
-> (P.S. I thought about making a fancy GUI for wg-meshconf like the other tools, but then I thought, why do it the complex way when you can simply "borrow" Excel's GUI?)
+> (P.S. I thought about making a fancy GUI for awg-meshconf like the other tools, but then I thought, why do it the complex way when you can simply "borrow" Excel's GUI?)
 
 Run the following command to initialize a new database file. By default, the database file is named `database.csv`. You can also specify the file's name via `-d`.
 
 ```shell
-wg-meshconf init
+awg-meshconf init
 ```
 
 Open the database CSV file with an editor like Excel or LibreOffice Calc. You should see the following column headers.
@@ -79,7 +93,7 @@ You can then fill in the peers' information. **You will need to fill in at least
 Once you're done, save the file and execute the `init` command again to automatically generate the rest of the needed information such as peer private keys.
 
 ```shell
-wg-meshconf init
+awg-meshconf init
 ```
 
 If you check the file again, you'll see the necessary fields getting automatically filed in.
@@ -93,16 +107,16 @@ If, for some reason, you don't want to edit the database file directly, you can 
 First we need to add all peers in the mesh network into the database. The basic syntax for adding new peers is:
 
 ```shell
-wg-meshconf addpeer NAME --address IP_ADDRESS --address IP_ADDRESS_2 --endpoint ENDPOINT
+awg-meshconf addpeer NAME --address IP_ADDRESS --address IP_ADDRESS_2 --endpoint ENDPOINT
 ```
 
 - New private key will be generated automatically if unspecified
 - ListenPort defaults to 51820 per WireGuard standard
 - All other values are left empty by default
 
-There are more options which you can specify. Use the command `wg-meshconf addpeer -h` for more details.
+There are more options which you can specify. Use the command `awg-meshconf addpeer -h` for more details.
 
-After adding all the peers into the database, you can verify that they have all been added correctly via the `wg-meshconf showpeers` command. The `simplify` switch here omits all columns with only `None`s.
+After adding all the peers into the database, you can verify that they have all been added correctly via the `awg-meshconf showpeers` command. The `simplify` switch here omits all columns with only `None`s.
 
 ![image](https://user-images.githubusercontent.com/21986859/99202459-1dec9e00-27a7-11eb-8190-a5a3c6644d2a.png)
 
@@ -133,6 +147,40 @@ Verify that all endpoints have been configured properly and can connect to each 
 ![image](https://user-images.githubusercontent.com/21986859/99202822-5e98e700-27a8-11eb-8bb2-3e0d2222258f.png)
 
 Done. Now a mesh network has been created between the four servers.
+
+## Using AmneziaWG Obfuscation
+
+To create an AmneziaWG mesh network with DPI bypass capabilities, you can specify obfuscation parameters when adding peers:
+
+```shell
+# Add a peer with custom AmneziaWG parameters
+awg-meshconf addpeer tokyo1 --address 10.1.0.1/16 --endpoint tokyo1.com --jc 4 --jmin 100 --jmax 800 --s1 25 --s2 95
+
+# Or let the tool auto-generate recommended values
+awg-meshconf addpeer germany1 --address 10.2.0.1/16 --endpoint germany1.com
+```
+
+The generated configuration files will include the AmneziaWG parameters:
+
+```ini
+[Interface]
+Address = 10.1.0.1/16
+PrivateKey = yJndNh80ToNWGOfDlbtho1wHAEZGa7ZhNpsHf7AJVUM=
+Jc = 4
+Jmin = 100
+Jmax = 800
+S1 = 25
+S2 = 95
+H1 = 39131278
+H2 = 832138185
+H3 = 1436957857
+H4 = 1635877746
+
+[Peer]
+PublicKey = SEOaOjTrhR4do1iUrTTRRHZs6xCA3Q/H0yHW3ZpkHko=
+Endpoint = germany1.com:51820
+AllowedIPs = 10.2.0.1/16
+```
 
 ## Updating Peer Information
 
@@ -170,16 +218,16 @@ This example below shows how to delete the peer `tokyo1` from the database.
 
 ## Database Files
 
-Unlike 1.x.x versions of wg-meshconf, version 2.0.0 does not require the user to save or load profiles. Instead, all add peer, update peer and delete peer operations are file operations. The changes will be saved to the database file immediately. The database file to use can be specified via the `-d` or the `--database` option. If no database file is specified, `database.csv` will be used.
+Unlike 1.x.x versions of awg-meshconf, version 2.0.0 does not require the user to save or load profiles. Instead, all add peer, update peer and delete peer operations are file operations. The changes will be saved to the database file immediately. The database file to use can be specified via the `-d` or the `--database` option. If no database file is specified, `database.csv` will be used.
 
 Database files are essentially just CSV files (it was JSON before version 2.4.0). Below is an example.
 
 ```csv
-"Name","Address","Endpoint","AllowedIPs","ListenPort","PersistentKeepalive","FwMark","PrivateKey","DNS","MTU","Table","PreUp","PostUp","PreDown","PostDown","SaveConfig"
-"tokyo1","10.1.0.1/16","tokyo1.com","","51820","","","yJndNh80ToNWGOfDlbtho1wHAEZGa7ZhNpsHf7AJVUM=","","","","","","","",""
-"germany1","10.2.0.1/16","germany1.com","","51820","","","SEOaOjTrhR4do1iUrTTRRHZs6xCA3Q/H0yHW3ZpkHko=","","","","","","","",""
-"canada1","10.3.0.1/16","canada1.com","","51820","","","2D34jpbTsU+KeBqfItTEbL5m7nYcBomWWJGTYCT6eko=","","","","","","","",""
-"shanghai1","10.4.0.1/16","shanghai1.com","","51820","","","CGyR7goj/uGH3TQHgVknpb9ZBR+/yMfkve+kVNGBYlg=","","","","","","","",""
+"Name","Address","Endpoint","AllowedIPs","ListenPort","PersistentKeepalive","FwMark","PrivateKey","DNS","MTU","Table","PreUp","PostUp","PreDown","PostDown","SaveConfig","Jc","Jmin","Jmax","S1","S2","H1","H2","H3","H4","I1","I2","I3","I4","I5"
+"tokyo1","10.1.0.1/16","tokyo1.com","","51820","","","yJndNh80ToNWGOfDlbtho1wHAEZGa7ZhNpsHf7AJVUM=","","","","","","","","","3","50","1000","20","78","39131278","832138185","1436957857","1635877746","a1b2c3...","d4e5f6...","g7h8i9...","j0k1l2...","m3n4o5..."
+"germany1","10.2.0.1/16","germany1.com","","51820","","","SEOaOjTrhR4do1iUrTTRRHZs6xCA3Q/H0yHW3ZpkHko=","","","","","","","","","4","100","800","25","95","48294756","192837465","283746591","374859206","p6q7r8...","s9t0u1...","v2w3x4...","y5z6a7...","b8c9d0..."
+"canada1","10.3.0.1/16","canada1.com","","51820","","","2D34jpbTsU+KeBqfItTEbL5m7nYcBomWWJGTYCT6eko=","","","","","","","","","5","200","900","30","110","57382947","384756192","475869203","586970314","e1f2g3...","h4i5j6...","k7l8m9...","n0o1p2...","q3r4s5..."
+"shanghai1","10.4.0.1/16","shanghai1.com","","51820","","","CGyR7goj/uGH3TQHgVknpb9ZBR+/yMfkve+kVNGBYlg=","","","","","","","","","6","300","700","35","125","67493058","485967203","576078314","687179425","t6u7v8...","w9x0y1...","z2a3b4...","c5d6e7...","f8g9h0..."
 ```
 
 ## Detailed Usages
@@ -187,8 +235,8 @@ Database files are essentially just CSV files (it was JSON before version 2.4.0)
 You may refer to the program's help page for usages. Use the `-h` switch or the `--help` switch to print the help page.
 
 ```shell
-$ wg-meshconf -h
-usage: wg-meshconf [-h] [-d DATABASE] {addpeer,updatepeer,delpeer,showpeers,genconfig} ...
+$ awg-meshconf -h
+usage: awg-meshconf [-h] [-d DATABASE] {addpeer,updatepeer,delpeer,showpeers,genconfig} ...
 
 positional arguments:
   {addpeer,updatepeer,delpeer,showpeers,genconfig}
@@ -202,8 +250,8 @@ optional arguments:
 Specify `-h` or `--help` after a command to see this command's usages.
 
 ```shell
-$ wg-meshconf addpeer -h
-usage: wg-meshconf addpeer [-h] --address ADDRESS [--endpoint ENDPOINT] [--privatekey PRIVATEKEY] [--listenport LISTENPORT] [--fwmark FWMARK] [--dns DNS] [--mtu MTU] [--table TABLE] [--preup PREUP] [--postup POSTUP] [--predown PREDOWN] [--postdown POSTDOWN] [--saveconfig] name
+$ awg-meshconf addpeer -h
+usage: awg-meshconf addpeer [-h] --address ADDRESS [--endpoint ENDPOINT] [--privatekey PRIVATEKEY] [--listenport LISTENPORT] [--fwmark FWMARK] [--dns DNS] [--mtu MTU] [--table TABLE] [--preup PREUP] [--postup POSTUP] [--predown PREDOWN] [--postdown POSTDOWN] [--saveconfig] [--jc JC] [--jmin JMIN] [--jmax JMAX] [--s1 S1] [--s2 S2] [--h1 H1] [--h2 H2] [--h3 H3] [--h4 H4] [--i1 I1] [--i2 I2] [--i3 I3] [--i4 I4] [--i5 I5] name
 
 positional arguments:
   name                  Name used to identify this node
@@ -225,6 +273,20 @@ optional arguments:
   --predown PREDOWN     command to run before interface is down
   --postdown POSTDOWN   command to run after interface is down
   --saveconfig          save server interface to config upon shutdown
+  --jc JC               number of junk packets (3-10)
+  --jmin JMIN           minimum junk packet size (50-1000)
+  --jmax JMAX           maximum junk packet size (50-1000)
+  --s1 S1               handshake initiation prefix size (15-150)
+  --s2 S2               handshake response prefix size (15-150)
+  --h1 H1               custom type for handshake initiation
+  --h2 H2               custom type for handshake response
+  --h3 H3               custom type for data packets
+  --h4 H4               custom type for under-load packets
+  --i1 I1               signature packet 1 (hex string)
+  --i2 I2               signature packet 2 (hex string)
+  --i3 I3               signature packet 3 (hex string)
+  --i4 I4               signature packet 4 (hex string)
+  --i5 I5               signature packet 5 (hex string)
 ```
 
 ## License
@@ -241,9 +303,3 @@ This project includes or dependson the following software and projects:
 | [Rich](https://github.com/Textualize/rich)           | MIT License |
 | [WireGuard](https://git.zx2c4.com/wireguard)         | MIT License |
 | [cryptography](https://github.com/pyca/cryptography) | BSD License |
-
-## Related Project: `wg-dynamic`
-
-`wg-dynamic` is a tool designed officially by the WireGuard developing team. This new utility will provide a convenient way of configuring networks dynamically, where mesh network being one of the them. If you're interested, check it out at [wg-dynamic@github](https://github.com/WireGuard/wg-dynamic) or [wg-dynamic@official repository](https://git.zx2c4.com/wg-dynamic). You might also want to read this project's [idea page](https://github.com/WireGuard/wg-dynamic/blob/master/docs/idea.md).
-
-This section used to be on the top of the page, but has been moved since there has been no new commits observed in this project since 2019.

@@ -3,8 +3,9 @@
 """
 Name: Database Manager
 Creator: K4YT3X
+Modified by: SamuraJ
 Date Created: July 19, 2020
-Last Modified: June 16, 2021
+Last Modified: September 1, 2025
 """
 
 import copy
@@ -62,7 +63,33 @@ PEER_OPTIONAL_ATTRIBUTES_LOCAL = [
     "PersistentKeepalive",
 ]
 
-ALL_ATTRIBUTES = INTERFACE_ATTRIBUTES + PEER_ATTRIBUTES_REMOTE + PEER_ATTRIBUTES_LOCAL
+# AmneziaWG obfuscation attributes
+AMNEZIAWG_SHARED_ATTRIBUTES = [
+    "S1",
+    "S2",
+    "H1",
+    "H2",
+    "H3",
+    "H4",
+    "I1",
+    "I2",
+    "I3",
+    "I4",
+    "I5",
+]
+
+AMNEZIAWG_PER_PEER_ATTRIBUTES = ["Jc", "Jmin", "Jmax"]
+
+AMNEZIAWG_ATTRIBUTES = AMNEZIAWG_SHARED_ATTRIBUTES + AMNEZIAWG_PER_PEER_ATTRIBUTES
+
+AMNEZIAWG_OPTIONAL_ATTRIBUTES = AMNEZIAWG_ATTRIBUTES
+
+ALL_ATTRIBUTES = (
+    INTERFACE_ATTRIBUTES
+    + PEER_ATTRIBUTES_REMOTE
+    + PEER_ATTRIBUTES_LOCAL
+    + AMNEZIAWG_ATTRIBUTES
+)
 
 KEY_TYPE = {
     "Name": str,
@@ -81,6 +108,21 @@ KEY_TYPE = {
     "PreDown": str,
     "PostDown": str,
     "SaveConfig": bool,
+    # AmneziaWG parameters
+    "Jc": int,
+    "Jmin": int,
+    "Jmax": int,
+    "S1": int,
+    "S2": int,
+    "H1": int,
+    "H2": int,
+    "H3": int,
+    "H4": int,
+    "I1": str,
+    "I2": str,
+    "I3": str,
+    "I4": str,
+    "I5": str,
 }
 
 
@@ -90,6 +132,28 @@ class DatabaseManager:
         self.database_template = {"peers": {}}
         self.wireguard = WireGuard()
 
+    def get_shared_amneziawg_params(self, database):
+        """Get shared AmneziaWG parameters from the first peer in database
+
+        Args:
+            database (dict): Database dictionary
+
+        Returns:
+            dict: Shared AmneziaWG parameters or None if no peers exist
+        """
+        if not database["peers"]:
+            return None
+
+        # Get the first peer (any peer will do since shared params should be the same)
+        first_peer = next(iter(database["peers"].values()))
+
+        shared_params = {}
+        for key in AMNEZIAWG_SHARED_ATTRIBUTES:
+            if first_peer.get(key) is not None:
+                shared_params[key] = first_peer[key]
+
+        return shared_params if shared_params else None
+
     def init(self):
         """initialize an empty database file"""
         if not self.database_path.exists():
@@ -97,7 +161,10 @@ class DatabaseManager:
                 mode="w", encoding="utf-8", newline=""
             ) as database_file:
                 writer = csv.DictWriter(
-                    database_file, KEY_TYPE.keys(), quoting=csv.QUOTE_ALL
+                    database_file,
+                    KEY_TYPE.keys(),
+                    quoting=csv.QUOTE_NONE,
+                    escapechar="\\",
                 )
                 writer.writeheader()
             print(f"Empty database file {self.database_path} has been created")
@@ -119,6 +186,25 @@ class DatabaseManager:
                 if database["peers"][peer].get("PrivateKey") is None:
                     privatekey = self.wireguard.genkey()
                     database["peers"][peer]["PrivateKey"] = privatekey
+
+                # Generate AmneziaWG parameters if not present
+                shared_params = self.get_shared_amneziawg_params(database)
+                if shared_params is None:
+                    # First peer, generate all parameters
+                    amneziawg_params = self.wireguard.generate_amneziawg_params()
+                else:
+                    # Subsequent peers, use shared parameters and generate per-peer parameters
+                    amneziawg_params = shared_params.copy()
+                    per_peer_params = self.wireguard.generate_amneziawg_params()
+                    for key in AMNEZIAWG_PER_PEER_ATTRIBUTES:
+                        amneziawg_params[key] = per_peer_params[key]
+
+                for key in AMNEZIAWG_ATTRIBUTES:
+                    if (
+                        database["peers"][peer].get(key) is None
+                        and key in amneziawg_params
+                    ):
+                        database["peers"][peer][key] = amneziawg_params[key]
             self.write_database(database)
 
     def read_database(self):
@@ -132,17 +218,21 @@ class DatabaseManager:
 
         database = copy.deepcopy(self.database_template)
 
-        with self.database_path.open(mode="r", encoding="utf-8") as database_file:
-            peers = csv.DictReader(database_file)
+        # тут ломаемся
+        with self.database_path.open(mode="r", encoding="utf-8-sig") as database_file:
+            peers = csv.DictReader(
+                database_file, quoting=csv.QUOTE_NONE, escapechar="\\"
+            )
             for peer in peers:
                 for key in peer:
+                    print(f"Key: {key}")
                     if peer[key] == "":
                         peer[key] = None
-                    elif KEY_TYPE[key] == list:
+                    elif KEY_TYPE[key] is list:
                         peer[key] = peer[key].split(",")
-                    elif KEY_TYPE[key] == int:
+                    elif KEY_TYPE[key] is int:
                         peer[key] = int(peer[key])
-                    elif KEY_TYPE[key] == bool:
+                    elif KEY_TYPE[key] is bool:
                         peer[key] = peer[key].lower() == "true"
                 database["peers"][peer.pop("Name")] = peer
 
@@ -159,7 +249,7 @@ class DatabaseManager:
             mode="w", encoding="utf-8", newline=""
         ) as database_file:
             writer = csv.DictWriter(
-                database_file, KEY_TYPE.keys(), quoting=csv.QUOTE_ALL
+                database_file, KEY_TYPE.keys(), quoting=csv.QUOTE_NONE, escapechar="\\"
             )
             writer.writeheader()
             data = copy.deepcopy(data)
@@ -192,6 +282,21 @@ class DatabaseManager:
         PreDown: str = None,
         PostDown: str = None,
         SaveConfig: bool = None,
+        # AmneziaWG parameters
+        Jc: int = None,
+        Jmin: int = None,
+        Jmax: int = None,
+        S1: int = None,
+        S2: int = None,
+        H1: int = None,
+        H2: int = None,
+        H3: int = None,
+        H4: int = None,
+        I1: str = None,
+        I2: str = None,
+        I3: str = None,
+        I4: str = None,
+        I5: str = None,
     ):
         database = self.read_database()
 
@@ -205,6 +310,25 @@ class DatabaseManager:
         if locals().get("PrivateKey") is None:
             privatekey = self.wireguard.genkey()
             database["peers"][Name]["PrivateKey"] = privatekey
+
+        # Generate AmneziaWG parameters if not provided
+        shared_params = self.get_shared_amneziawg_params(database)
+        if shared_params is None:
+            # First peer, generate all parameters
+            amneziawg_params = self.wireguard.generate_amneziawg_params()
+        else:
+            # Subsequent peers, use shared parameters and generate per-peer parameters
+            amneziawg_params = shared_params.copy()
+            per_peer_params = self.wireguard.generate_amneziawg_params()
+            for key in AMNEZIAWG_PER_PEER_ATTRIBUTES:
+                if (
+                    locals().get(key) is None
+                ):  # Only override if not explicitly provided
+                    amneziawg_params[key] = per_peer_params[key]
+
+        for key in AMNEZIAWG_ATTRIBUTES:
+            if locals().get(key) is None and key in amneziawg_params:
+                database["peers"][Name][key] = amneziawg_params[key]
 
         for key in ALL_ATTRIBUTES:
             if locals().get(key) is not None:
@@ -230,6 +354,21 @@ class DatabaseManager:
         PreDown: str = None,
         PostDown: str = None,
         SaveConfig: bool = None,
+        # AmneziaWG parameters
+        Jc: int = None,
+        Jmin: int = None,
+        Jmax: int = None,
+        S1: int = None,
+        S2: int = None,
+        H1: int = None,
+        H2: int = None,
+        H3: int = None,
+        H4: int = None,
+        I1: str = None,
+        I2: str = None,
+        I3: str = None,
+        I4: str = None,
+        I5: str = None,
     ):
         database = self.read_database()
 
@@ -237,7 +376,14 @@ class DatabaseManager:
             print(f"Peer with name {Name} does not exist")
             return
 
-        for key in ALL_ATTRIBUTES:
+        # Handle shared AmneziaWG parameters - update all peers
+        for key in AMNEZIAWG_SHARED_ATTRIBUTES:
+            if locals().get(key) is not None:
+                for peer_name in database["peers"]:
+                    database["peers"][peer_name][key] = locals().get(key)
+
+        # Handle per-peer AmneziaWG parameters and other attributes
+        for key in AMNEZIAWG_PER_PEER_ATTRIBUTES + ALL_ATTRIBUTES:
             if locals().get(key) is not None:
                 database["peers"][Name][key] = locals().get(key)
 
@@ -349,6 +495,11 @@ class DatabaseManager:
                 config.write("PrivateKey = {}\n".format(local_peer["PrivateKey"]))
 
                 for key in INTERFACE_OPTIONAL_ATTRIBUTES:
+                    if local_peer.get(key) is not None:
+                        config.write("{} = {}\n".format(key, local_peer[key]))
+
+                # Add AmneziaWG parameters to [Interface] section
+                for key in AMNEZIAWG_OPTIONAL_ATTRIBUTES:
                     if local_peer.get(key) is not None:
                         config.write("{} = {}\n".format(key, local_peer[key]))
 

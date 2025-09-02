@@ -1,4 +1,4 @@
-# wg-meshconf Contribution Guidelines
+# awg-meshconf Contribution Guidelines
 
 - Please submit PRs with meaningful descriptions.
 - Please format your code with [black](https://github.com/psf/black) before submitting the PR.

@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.0.0 (September 1, 2025)
+
+- Forked and added support for AmneziaWG, renamed to awg-meshconf
+
 ## 2.5.1 (February 2, 2023)
 
 - Update the project to use PEP 518 and PEP 621

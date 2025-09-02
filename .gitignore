@@ -7,8 +7,8 @@ Session.vim
 
 # program data files
 *.csv
-wg_meshconf/output/
-wg-meshconf.odg
+awg_meshconf/output/
+awg-meshconf.odg
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -118,3 +118,7 @@ venv.bak/
 # IntelliJ IDEA
 .idea
 *.iml
+
+# plz don`t leak keys
+*.key
+*.conf

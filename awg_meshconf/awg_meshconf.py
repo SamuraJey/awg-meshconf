@@ -1,14 +1,20 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Name: wg-meshconf
+Name: awg-meshconf
+Based on: wg-meshconf by K4YT3X
 Creator: K4YT3X
 Date Created: July 19, 2020
-Last Modified: June 16, 2021
+Last Modified: September 1, 2025
+
+Modified by: SamuraJ
+Modification Date: September 1, 2025
+Changes: Added support for AmneziaWG obfuscation parameters and fixed csv handling
 
 Licensed under the GNU General Public License Version 3 (GNU GPL v3),
     available at: https://www.gnu.org/licenses/gpl-3.0.txt
 (C) 2018-2021 K4YT3X
+(C) 2025 SamuraJ - Modifications
 """
 
 import argparse
@@ -21,7 +27,7 @@ from .database_manager import DatabaseManager
 def parse_arguments():
     """parse CLI arguments"""
     parser = argparse.ArgumentParser(
-        prog="wg-meshconf", formatter_class=argparse.ArgumentDefaultsHelpFormatter
+        prog="awg-meshconf", formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
 
     parser.add_argument(
@@ -68,6 +74,26 @@ def parse_arguments():
         default=None,
     )
 
+    # AmneziaWG obfuscation parameters
+    addpeer.add_argument("--jc", help="number of junk packets (3-10)", type=int)
+    addpeer.add_argument("--jmin", help="minimum junk packet size (50-1000)", type=int)
+    addpeer.add_argument("--jmax", help="maximum junk packet size (50-1000)", type=int)
+    addpeer.add_argument(
+        "--s1", help="handshake initiation prefix size (15-150)", type=int
+    )
+    addpeer.add_argument(
+        "--s2", help="handshake response prefix size (15-150)", type=int
+    )
+    addpeer.add_argument("--h1", help="custom type for handshake initiation", type=int)
+    addpeer.add_argument("--h2", help="custom type for handshake response", type=int)
+    addpeer.add_argument("--h3", help="custom type for data packets", type=int)
+    addpeer.add_argument("--h4", help="custom type for under-load packets", type=int)
+    addpeer.add_argument("--i1", help="signature packet 1 (hex string)")
+    addpeer.add_argument("--i2", help="signature packet 2 (hex string)")
+    addpeer.add_argument("--i3", help="signature packet 3 (hex string)")
+    addpeer.add_argument("--i4", help="signature packet 4 (hex string)")
+    addpeer.add_argument("--i5", help="signature packet 5 (hex string)")
+
     # update existing peer information
     updatepeer = subparsers.add_parser("updatepeer")
     updatepeer.add_argument("name", help="Name used to identify this node")
@@ -95,6 +121,32 @@ def parse_arguments():
         help="save server interface to config upon shutdown",
         default=None,
     )
+
+    # AmneziaWG obfuscation parameters
+    updatepeer.add_argument("--jc", help="number of junk packets (3-10)", type=int)
+    updatepeer.add_argument(
+        "--jmin", help="minimum junk packet size (50-1000)", type=int
+    )
+    updatepeer.add_argument(
+        "--jmax", help="maximum junk packet size (50-1000)", type=int
+    )
+    updatepeer.add_argument(
+        "--s1", help="handshake initiation prefix size (15-150)", type=int
+    )
+    updatepeer.add_argument(
+        "--s2", help="handshake response prefix size (15-150)", type=int
+    )
+    updatepeer.add_argument(
+        "--h1", help="custom type for handshake initiation", type=int
+    )
+    updatepeer.add_argument("--h2", help="custom type for handshake response", type=int)
+    updatepeer.add_argument("--h3", help="custom type for data packets", type=int)
+    updatepeer.add_argument("--h4", help="custom type for under-load packets", type=int)
+    updatepeer.add_argument("--i1", help="signature packet 1 (hex string)")
+    updatepeer.add_argument("--i2", help="signature packet 2 (hex string)")
+    updatepeer.add_argument("--i3", help="signature packet 3 (hex string)")
+    updatepeer.add_argument("--i4", help="signature packet 4 (hex string)")
+    updatepeer.add_argument("--i5", help="signature packet 5 (hex string)")
 
     # delpeer deletes a peer form the database
     delpeer = subparsers.add_parser("delpeer")
@@ -135,7 +187,6 @@ def parse_arguments():
 
 # if the file is not being imported
 def main():
-
     args = parse_arguments()
 
     database_manager = DatabaseManager(args.database)
@@ -161,6 +212,21 @@ def main():
             args.predown,
             args.postdown,
             args.saveconfig,
+            # AmneziaWG parameters
+            args.jc,
+            args.jmin,
+            args.jmax,
+            args.s1,
+            args.s2,
+            args.h1,
+            args.h2,
+            args.h3,
+            args.h4,
+            args.i1,
+            args.i2,
+            args.i3,
+            args.i4,
+            args.i5,
         )
 
     elif args.command == "updatepeer":
@@ -181,6 +247,21 @@ def main():
             args.predown,
             args.postdown,
             args.saveconfig,
+            # AmneziaWG parameters
+            args.jc,
+            args.jmin,
+            args.jmax,
+            args.s1,
+            args.s2,
+            args.h1,
+            args.h2,
+            args.h3,
+            args.h4,
+            args.i1,
+            args.i2,
+            args.i3,
+            args.i4,
+            args.i5,
         )
 
     elif args.command == "delpeer":
@@ -195,6 +276,6 @@ def main():
     # if no commands are specified
     else:
         print(
-            "No command specified\nUse wg-meshconf --help to see available commands",
+            "No command specified\nUse awg-meshconf --help to see available commands",
             file=sys.stderr,
         )
