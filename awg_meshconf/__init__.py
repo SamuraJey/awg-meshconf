@@ -1,5 +1,4 @@
 #!/usr/bin/python3
-# -*- coding: utf-8 -*-
 """
 Name: awg-meshconf __init__
 Based on: wg-meshconf by K4YT3X __init__

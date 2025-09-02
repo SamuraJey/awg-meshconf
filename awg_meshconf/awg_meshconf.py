@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 Name: awg-meshconf
 Based on: wg-meshconf by K4YT3X
@@ -18,8 +17,8 @@ Licensed under the GNU General Public License Version 3 (GNU GPL v3),
 """
 
 import argparse
+import logging
 import pathlib
-import sys
 
 from .database_manager import DatabaseManager
 
@@ -161,6 +160,8 @@ def parse_arguments():
 
 # if the file is not being imported
 def main():
+    logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
+    logger = logging.getLogger(__name__)
     args = parse_arguments()
 
     database_manager = DatabaseManager(args.database)
@@ -249,7 +250,4 @@ def main():
 
     # if no commands are specified
     else:
-        print(
-            "No command specified\nUse awg-meshconf --help to see available commands",
-            file=sys.stderr,
-        )
+        logger.error("No command specified\nUse awg-meshconf --help to see available commands")

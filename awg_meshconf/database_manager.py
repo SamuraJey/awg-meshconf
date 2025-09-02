@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 Name: Database Manager
 Creator: K4YT3X
@@ -10,6 +9,7 @@ Last Modified: September 1, 2025
 
 import copy
 import csv
+import logging
 import pathlib
 import sys
 
@@ -126,6 +126,7 @@ class DatabaseManager:
         self.database_path = database_path
         self.database_template = {"peers": {}}
         self.wireguard = WireGuard()
+        self.logger = logging.getLogger(__name__)
 
     def get_shared_amneziawg_params(self, database):
         """Get shared AmneziaWG parameters from the first peer in database
@@ -160,7 +161,7 @@ class DatabaseManager:
                     escapechar="\\",
                 )
                 writer.writeheader()
-            print(f"Empty database file {self.database_path} has been created")
+            self.logger.info(f"Empty database file {self.database_path} has been created")
         else:
             database = self.read_database()
 
@@ -168,7 +169,7 @@ class DatabaseManager:
             for key in ["Address", "Endpoint"]:
                 for peer in database["peers"]:
                     if database["peers"][peer].get(key) is None:
-                        print(f"The value of {key} cannot be automatically generated")
+                        self.logger.error(f"The value of {key} cannot be automatically generated")
                         sys.exit(1)
 
             # automatically generate missing values
@@ -241,9 +242,7 @@ class DatabaseManager:
                 for key in data["peers"][peer]:
                     if isinstance(data["peers"][peer][key], list):
                         data["peers"][peer][key] = ",".join(data["peers"][peer][key])
-                    elif isinstance(data["peers"][peer][key], int):
-                        data["peers"][peer][key] = str(data["peers"][peer][key])
-                    elif isinstance(data["peers"][peer][key], bool):
+                    elif isinstance(data["peers"][peer][key], int) or isinstance(data["peers"][peer][key], bool):
                         data["peers"][peer][key] = str(data["peers"][peer][key])
                 writer.writerow(data["peers"][peer])
 
@@ -284,7 +283,7 @@ class DatabaseManager:
         database = self.read_database()
 
         if Name in database["peers"]:
-            print(f"Peer with name {Name} already exists")
+            self.logger.warning(f"Peer with name {Name} already exists")
             return
 
         database["peers"][Name] = {}
@@ -354,7 +353,7 @@ class DatabaseManager:
         database = self.read_database()
 
         if Name not in database["peers"]:
-            print(f"Peer with name {Name} does not exist")
+            self.logger.warning(f"Peer with name {Name} does not exist")
             return
 
         # Handle shared AmneziaWG parameters - update all peers
@@ -375,7 +374,7 @@ class DatabaseManager:
 
         # abort if user doesn't exist
         if Name not in database["peers"]:
-            print(f"Peer with ID {Name} does not exist")
+            self.logger.warning(f"Peer with ID {Name} does not exist")
             return
 
         database["peers"].pop(Name, None)
@@ -389,7 +388,7 @@ class DatabaseManager:
         # if name is specified, show the specified peer
         if Name is not None:
             if Name not in database["peers"]:
-                print(f"Peer with ID {Name} does not exist")
+                self.logger.warning(f"Peer with ID {Name} does not exist")
                 return
             peers = [Name]
 
@@ -431,9 +430,7 @@ class DatabaseManager:
             table.add_row(
                 peer,
                 *[
-                    str(database["peers"][peer].get(k))
-                    if not isinstance(database["peers"][peer].get(k), list)
-                    else ",".join(database["peers"][peer].get(k))
+                    str(database["peers"][peer].get(k)) if not isinstance(database["peers"][peer].get(k), list) else ",".join(database["peers"][peer].get(k))
                     for k in [i for i in field_names if i != "Name"]
                 ],
             )
@@ -453,13 +450,10 @@ class DatabaseManager:
         # check if output directory is valid
         # create output directory if it does not exist
         if output.exists() and not output.is_dir():
-            print(
-                "Error: output path already exists and is not a directory",
-                file=sys.stderr,
-            )
+            self.logger.error("Error: output path already exists and is not a directory")
             raise FileExistsError
         elif not output.exists():
-            print(f"Creating output directory: {output}", file=sys.stderr)
+            self.logger.info(f"Creating output directory: {output}")
             output.mkdir(exist_ok=True)
 
         # for every peer in the database
@@ -468,25 +462,25 @@ class DatabaseManager:
 
             with (output / f"{peer}.conf").open("w") as config:
                 config.write("[Interface]\n")
-                config.write("# Name: {}\n".format(peer))
+                config.write(f"# Name: {peer}\n")
                 config.write("Address = {}\n".format(", ".join(local_peer["Address"])))
                 config.write("PrivateKey = {}\n".format(local_peer["PrivateKey"]))
 
                 for key in INTERFACE_OPTIONAL_ATTRIBUTES:
                     if local_peer.get(key) is not None:
-                        config.write("{} = {}\n".format(key, local_peer[key]))
+                        config.write(f"{key} = {local_peer[key]}\n")
 
                 # Add AmneziaWG parameters to [Interface] section
                 for key in AMNEZIAWG_OPTIONAL_ATTRIBUTES:
                     if local_peer.get(key) is not None:
-                        config.write("{} = {}\n".format(key, local_peer[key]))
+                        config.write(f"{key} = {local_peer[key]}\n")
 
                 # generate [Peer] sections for all other peers
                 for p in [i for i in database["peers"] if i != peer]:
                     remote_peer = database["peers"][p]
 
                     config.write("\n[Peer]\n")
-                    config.write("# Name: {}\n".format(p))
+                    config.write(f"# Name: {p}\n")
                     config.write("PublicKey = {}\n".format(self.wireguard.pubkey(remote_peer["PrivateKey"])))
 
                     if remote_peer.get("Endpoint") is not None:
@@ -502,12 +496,12 @@ class DatabaseManager:
                             allowed_ips = ", ".join(remote_peer["Address"] + remote_peer["AllowedIPs"])
                         else:
                             allowed_ips = ", ".join(remote_peer["Address"])
-                        config.write("AllowedIPs = {}\n".format(allowed_ips))
+                        config.write(f"AllowedIPs = {allowed_ips}\n")
 
                     for key in PEER_OPTIONAL_ATTRIBUTES_REMOTE:
                         if remote_peer.get(key) is not None:
-                            config.write("{} = {}\n".format(key, remote_peer[key]))
+                            config.write(f"{key} = {remote_peer[key]}\n")
 
                     for key in PEER_OPTIONAL_ATTRIBUTES_LOCAL:
                         if local_peer.get(key) is not None:
-                            config.write("{} = {}\n".format(key, local_peer[key]))
+                            config.write(f"{key} = {local_peer[key]}\n")

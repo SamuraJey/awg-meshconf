@@ -74,7 +74,7 @@ select = [
     "TID",
     "PERF"
 ]
-ignore = ["SIM108", "E712", "C416"]
+ignore = ["SIM108", "E712", "C416", "N803"]
 
 # Allow fix for all enabled rules (when `--fix`) is provided.
 fixable = ["ALL"]

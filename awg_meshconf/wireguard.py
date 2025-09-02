@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 Name: WireGuard/AmneziaWG Cryptography Class
 Creator: K4YT3X
@@ -130,7 +129,7 @@ class WireGuard:
             list: [I1, I2, I3, I4, I5] as hex strings
         """
         signatures = []
-        for i in range(5):
+        for _ in range(5):
             # Generate a random hex signature, e.g., mimicking QUIC or other protocols
             length = random.randint(20, 100)
             signature = secrets.token_hex(length)
